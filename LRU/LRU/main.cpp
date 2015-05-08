@@ -17,14 +17,20 @@ using namespace std;
 int main(int argc, const char * argv[]) {
     
     ifstream entrada;
-    entrada.open ("input.txt");
+    entrada.open ("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/input.txt");
     string linea;
-    entrada >>linea;//P 2048 1
-                    //cout <<entrada <<endl;
+    if (entrada.is_open()) {
+        while (!entrada.eof()) {
+            
+            
+            entrada >>linea;
+            cout <<linea;
+        }
+    }
     entrada.close();
     
     ofstream salida;
-    salida.open("output.txt");
+    salida.open("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/output.txt");
     salida <<"escribir o variables al text.";
     salida.close();
     

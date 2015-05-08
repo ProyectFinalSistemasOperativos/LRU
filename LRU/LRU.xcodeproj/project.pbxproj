@@ -27,7 +27,7 @@
 		13372C081AFD32F200E2BCE9 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		13372C101AFD338300E2BCE9 /* Pagina.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pagina.h; sourceTree = "<group>"; };
 		374BF00C1AFD4141000D3BAA /* input.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
-		374BF00D1AFD419F000D3BAA /* output.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = output.txt; sourceTree = "<group>"; };
+		374BF00E1AFD57DB000D3BAA /* output.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = output.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +62,7 @@
 			children = (
 				13372C081AFD32F200E2BCE9 /* main.cpp */,
 				374BF00C1AFD4141000D3BAA /* input.txt */,
-				374BF00D1AFD419F000D3BAA /* output.txt */,
+				374BF00E1AFD57DB000D3BAA /* output.txt */,
 				13372C101AFD338300E2BCE9 /* Pagina.h */,
 			);
 			path = LRU;
