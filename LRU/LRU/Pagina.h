@@ -13,20 +13,71 @@ class Pagina{
 private:
     int idProceso;
     int numPagina;
-    int estado;
+    bool estado;
     int pageFaults;
-    time_t creacion;
-    time_t ultimaModificacion;
-    time_t borrado;
+    clock_t creacion;
+    clock_t ultimaModificacion;
     
 public:
-    Pagina(int idProc);
+    Pagina(int idProc, int numPag);
     void referenciar();
-    void modificar();
-    void remover();
     void pageFault();
-    void swap();
+    void swap(int numPag);
+    int getIdProceso();
+    int getNumPagina();
+    int getEstado();
+    int getPageFaults();
+    clock_t getCreacion();
+    clock_t getUltimaModificacion();
 };
 
+Pagina::Pagina(int idProc, int numPag){
+    idProceso = idProc;
+    numPagina = numPag;
+    estado = 1;
+    pageFaults = 0;
+    creacion = clock();
+    ultimaModificacion = creacion;
+}
+
+void Pagina::referenciar(){
+    estado = 1;
+    ultimaModificacion = clock();
+}
+
+void Pagina::pageFault(){
+    pageFaults++;
+}
+
+void Pagina::swap(int numPag){
+    numPagina = numPag;
+    if(estado ==0){
+        estado = 1;
+        ultimaModificacion = clock();
+    }
+    else{
+        estado = 0;
+    }
+}
+
+int Pagina::getIdProceso(){
+    return idProceso;
+}
+
+int Pagina::getNumPagina(){
+    return numPagina;
+}
+
+int Pagina::getPageFaults(){
+    return pageFaults;
+}
+
+clock_t Pagina::getUltimaModificacion(){
+    return ultimaModificacion;
+}
+
+clock_t Pagina::getCreacion(){
+    return creacion;
+}
 
 #endif
