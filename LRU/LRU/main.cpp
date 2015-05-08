@@ -13,6 +13,12 @@
 
 using namespace std;
 
+Pagina *arrMemPrincipal[256];
+
+void Asignar(){
+    
+}
+
 
 int main(int argc, const char * argv[]) {
     
