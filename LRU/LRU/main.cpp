@@ -8,10 +8,24 @@
 
 #include <iostream>
 #include "Pagina.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    
+    ifstream entrada;
+    entrada.open ("input.txt");
+    string linea;
+    entrada >>linea;//P 2048 1
+    entrada.close();
+    
+    ofstream salida;
+    salida.open("output.txt");
+    salida <<"escribir o variables al text. \n";
+    salida.close();
+    
     return 0;
 }
