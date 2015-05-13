@@ -11,7 +11,7 @@
 
 class Pagina{
 private:
-    int idProceso;
+    long int idProceso;
     int numPagina;
     bool estado;
     int pageFaults;
@@ -20,11 +20,11 @@ private:
     
 public:
     Pagina();
-    Pagina(int idProc, int numPag);
+    Pagina(long int idProc, int numPag);
     void referenciar();
     void pageFault();
     void swap(int numPag);
-    int getIdProceso();
+    long int getIdProceso();
     int getNumPagina();
     int getEstado();
     int getPageFaults();
@@ -41,7 +41,7 @@ Pagina::Pagina(){
     ultimaModificacion = creacion;
 }
 
-Pagina::Pagina(int idProc, int numPag){
+Pagina::Pagina(long int idProc, int numPag){
     idProceso = idProc;
     numPagina = numPag;
     estado = 1;
@@ -70,7 +70,7 @@ void Pagina::swap(int numPag){
     }
 }
 
-int Pagina::getIdProceso(){
+long int Pagina::getIdProceso(){
     return idProceso;
 }
 

@@ -18,7 +18,7 @@
 using namespace std;
 
 struct Proceso{
-    int id;
+    long int id;
     int tamReal;
     clock_t stampCreacion;
     clock_t stampLiberacion;
@@ -66,7 +66,7 @@ void swapLRU2(int sub){
     memoriaSwap[sub]= aux;
 }
 
-void cargarProceso(int tam, int pId){
+void cargarProceso(int tam, long int pId){
     int cont=0;
     Proceso p;
     p.id= pId;
@@ -176,11 +176,31 @@ int main(int argc, const char * argv[]) {
     ifstream entrada;
     entrada.open ("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/input.txt");
     string linea;
+    char tipoProceso;
+    int bytes, numProceso;
+    int get();
     if (entrada.is_open()) {
-        while (!entrada.eof()) {
-            getline(entrada, linea);
+        char opcion;
+        while (entrada>>opcion) {
+            //entrada.get(tipoProceso);
+            //getline(entrada, linea);
             //entrada >>linea;
-            cout <<linea <<endl;
+            //entrada >>tipoProceso >>bytes >>numProceso;
+            //cout <<tipoProceso <<" " <<bytes <<" " <<numProceso <<endl;
+            cout <<opcion <<endl;
+            
+            switch (opcion) {
+                case 'P':
+                    int a, b;
+                    entrada>>a>>b;
+                    cout <<"funciona \n";
+                    break;
+                case 'A':
+                    
+                    
+                default:
+                    break;
+            }
         }
     }
     entrada.close();
