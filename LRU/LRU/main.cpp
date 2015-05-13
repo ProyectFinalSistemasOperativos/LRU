@@ -14,6 +14,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include <ctype.h>
 
 using namespace std;
 
@@ -26,6 +28,7 @@ struct Proceso{
 };
 
 int espacioDisponible= 256;
+int espacioDisponibleSwap= 512;
 
 Pagina memoriaReal[256], memoriaSwap[512];
 
@@ -44,6 +47,7 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     for (int i=0; i<512&&(!encontrado); i++) { // Aqui se busca un espacio libre en el swap para hacer el cambio
         if (memoriaSwap[i].getIdProceso()==(-1)) {
             memoriaSwap[i]= memoriaReal[sub];
+            espacioDisponibleSwap--;
             nuevaPag.referenciar(); //para actualizar el timestamp
             memoriaReal[sub]= nuevaPag;
         }
@@ -108,7 +112,7 @@ void cargarProceso(int tam, long int pId){
     procesos.push_back(p);
 }
 
-void accesarDireccion(int dir, int pId, bool m){
+void accesarDireccion(int dir, int pId, bool modif){
     if (dir%8!=0) {
         dir /= 8;
         dir++;
@@ -158,6 +162,7 @@ void liberarProceso(int pId){
     for (int i=0; i<512; i++) {
         if (memoriaSwap[i].getIdProceso()==pId) {
             memoriaSwap[i]= nuevo;
+            espacioDisponibleSwap++;
         }
     }
     bool encontrado= false;
@@ -170,38 +175,146 @@ void liberarProceso(int pId){
     }
 }
 
+int convierteANum(string palabra){
+    bool esNum= true;
+    for (int i=0; i<palabra.size()&&esNum; i++) {
+        if (!isdigit(palabra[i])) {
+            esNum=false;
+        }
+    }
+    if(esNum){
+        return stoi(palabra);
+    }
+    else
+        return -1;
+}
+
+long int convierteALong(string palabra){
+    bool esNum= true;
+    for (int i=0; i<palabra.size()&&esNum; i++) {
+        if (!isdigit(palabra[i])) {
+            esNum=false;
+        }
+    }
+    if(esNum){
+        return stol(palabra);
+    }
+    else
+        return -1;
+}
+
+bool existeProceso(long int pId){
+    bool existe= false;
+    for (int i=0; i<procesos.size()&&(!existe); i++) {
+        if (pId==procesos[i].id) {
+            existe= true;
+        }
+    }
+    return existe;
+}
+
+int tamProceso(long int id){
+    for (int i=0; i<procesos.size(); i++) {
+        if (id==procesos[i].id) {
+            return procesos[i].tamReal;
+        }
+    }
+    return 0;
+}
 
 int main(int argc, const char * argv[]) {
     
     ifstream entrada;
-    entrada.open ("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/input.txt");
+    entrada.open ("/Users/axelsuarez/LRU/LRU/LRU/input.txt");
     string linea;
-    char tipoProceso;
-    int bytes, numProceso;
-    int get();
-    if (entrada.is_open()) {
-        char opcion;
-        while (entrada>>opcion) {
-            //entrada.get(tipoProceso);
-            //getline(entrada, linea);
-            //entrada >>linea;
-            //entrada >>tipoProceso >>bytes >>numProceso;
-            //cout <<tipoProceso <<" " <<bytes <<" " <<numProceso <<endl;
-            cout <<opcion <<endl;
-            
-            switch (opcion) {
-                case 'P':
-                    int a, b;
-                    entrada>>a>>b;
-                    cout <<"funciona \n";
+    vector<string> lineaSeparada;
+    while(getline(entrada, linea)) {
+        stringstream lineaStream (linea);
+        string aux;
+        while (lineaStream>>aux) {
+            lineaSeparada.push_back(aux);
+        }
+        if (lineaSeparada[0].size()==1) {
+            char opcion= lineaSeparada[0][0];
+            switch(opcion){
+                    case 'P':
+                        if(lineaSeparada.size()==3){
+                            int tam= convierteANum(lineaSeparada[1]);
+                            if (tam!=-1) {
+                                long int id= convierteALong(lineaSeparada[2]);
+                                if (id!=-1) {
+                                    if (tam<=((espacioDisponible*8)+(espacioDisponibleSwap*8))) {
+                                        if (!existeProceso(id)) {
+                                            cargarProceso(tam, id);
+                                        }
+                                        else{
+                                            cout<<"Error: ese proceso ya existe"<<endl;
+                                        }
+                                    }
+                                    else{
+                                        cout<<"Error: no hay suficiente espacio ni en memoria virtual ni en real "<<id<<endl;
+                                    }
+                                }
+                                else{
+                                    cout<<"Error: id invalido"<<endl;
+                                }
+                            }
+                            else{
+                                cout<<"Error: tamanio invalido"<<endl;
+                            }
+                        }
+                        else{
+                            cout<<"Error: parametros incorrectos"<<endl;
+                        }
                     break;
-                case 'A':
                     
+                    case 'A':
+                    if (lineaSeparada.size()==4&&(lineaSeparada[3].size()==1)&&(lineaSeparada[3][0]=='0'||lineaSeparada[3][0]=='1')) {
+                        long int id= convierteALong(lineaSeparada[2]);
+                        if (id!=-1) {
+                            if (existeProceso(id)) {
+                                int dir= convierteANum(lineaSeparada[1]);
+                                if (dir<tamProceso(id)) {
+                                    if (lineaSeparada[3][0]=='0'){
+                                        accesarDireccion(dir, id, false);
+                                    }
+                                    else{
+                                        accesarDireccion(dir, id, true);
+                                    }
+                                }
+                                else{
+                                    cout<<"Error: direccion fuera de rango"<<endl;
+                                }
+                            }
+                            else{
+                                cout<<"Error: ese proceso no existe"<<endl;
+                            }
+                        }
+                        else{
+                            cout<<"Error: id invalido"<<endl;
+                        }
+                    }
+                    else{
+                        cout<<"Error: parametros incorrectos"<<endl;
+                    }
+                    break;
                     
-                default:
+                    case 'L':
+                    break;
+                    
+                    case 'F':
+                    break;
+                    
+                    case 'E':
+                    break;
+                    
+                    default:
                     break;
             }
         }
+        else{
+        }
+        lineaSeparada.clear();
     }
     entrada.close();
     
