@@ -20,6 +20,8 @@ using namespace std;
 struct Proceso{
     int id;
     int tamReal;
+    clock_t stampCreacion;
+    clock_t stampLiberacion;
     bool activo;
 };
 
@@ -70,7 +72,6 @@ void cargarProceso(int tam, int pId){
     p.id= pId;
     p.tamReal= tam;
     p.activo= true;
-    procesos.push_back(p);
     if (tam%8!=0) {
         tam /= 8;
         tam++;
@@ -103,6 +104,8 @@ void cargarProceso(int tam, int pId){
             cont++;
         }
     }
+    p.stampCreacion= clock();
+    procesos.push_back(p);
 }
 
 void accesarDireccion(int dir, int pId, bool m){
@@ -157,6 +160,14 @@ void liberarProceso(int pId){
             memoriaSwap[i]= nuevo;
         }
     }
+    bool encontrado= false;
+    for (int i=0; i<procesos.size() && (!encontrado); i++) {
+        if (procesos[i].id==pId) {
+            procesos[i].stampLiberacion= clock();
+            procesos[i].activo= false;
+            encontrado= true;
+        }
+    }
 }
 
 
@@ -167,17 +178,16 @@ int main(int argc, const char * argv[]) {
     string linea;
     if (entrada.is_open()) {
         while (!entrada.eof()) {
-            
-            
-            entrada >>linea;
-            cout <<linea;
+            getline(entrada, linea);
+            //entrada >>linea;
+            cout <<linea <<endl;
         }
     }
     entrada.close();
     
     ofstream salida;
     salida.open("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/output.txt");
-    salida <<"escribir o variables al text.";
+    salida <<"escribir o variables al text. \n" <<"hola \n";
     salida.close();
     
     return 0;
