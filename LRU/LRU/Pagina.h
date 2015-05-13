@@ -19,6 +19,7 @@ private:
     clock_t ultimaModificacion;
     
 public:
+    Pagina();
     Pagina(int idProc, int numPag);
     void referenciar();
     void pageFault();
@@ -30,6 +31,15 @@ public:
     clock_t getCreacion();
     clock_t getUltimaModificacion();
 };
+
+Pagina::Pagina(){
+    idProceso = -1;
+    numPagina = -1;
+    estado = 1;
+    pageFaults = 0;
+    creacion = clock();
+    ultimaModificacion = creacion;
+}
 
 Pagina::Pagina(int idProc, int numPag){
     idProceso = idProc;

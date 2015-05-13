@@ -6,12 +6,158 @@
 //  Copyright (c) 2015 Iker Arbulu Lozano. All rights reserved.
 //
 
+
+//falta imprimir, agregar pagefaults, (validar), turnaround
+
 #include <iostream>
 #include "Pagina.h"
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace std;
+
+struct Proceso{
+    int id;
+    int tamReal;
+    bool activo;
+};
+
+int espacioDisponible= 256;
+
+Pagina memoriaReal[256], memoriaSwap[512];
+
+vector<Proceso> procesos;
+
+void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
+    int sub=0;
+    clock_t menor= memoriaReal[sub].getUltimaModificacion();
+    for (int i=1; i<256; i++) { //primero se encuentra el LRU en la memoria real
+        if (memoriaReal[i].getUltimaModificacion()<menor) {
+            menor= memoriaReal[i].getUltimaModificacion();
+            sub= i;
+        }
+    }
+    bool encontrado=false;
+    for (int i=0; i<512&&(!encontrado); i++) { // Aqui se busca un espacio libre en el swap para hacer el cambio
+        if (memoriaSwap[i].getIdProceso()==(-1)) {
+            memoriaSwap[i]= memoriaReal[sub];
+            nuevaPag.referenciar(); //para actualizar el timestamp
+            memoriaReal[sub]= nuevaPag;
+        }
+    }
+    
+}
+
+void swapLRU2(int sub){
+    int sub2= 0;
+    clock_t menor= memoriaReal[0].getUltimaModificacion();
+    for (int i=1; i<256; i++) { // se encuentra el LRU en la memoria real
+        if (memoriaReal[i].getUltimaModificacion()<menor) {
+            menor= memoriaReal[i].getUltimaModificacion();
+            sub2= i;
+        }
+    }
+    Pagina aux= memoriaReal[sub2];
+    memoriaReal[sub2]= memoriaSwap[sub];
+    memoriaReal[sub2].referenciar();
+    memoriaSwap[sub]= aux;
+}
+
+void cargarProceso(int tam, int pId){
+    int cont=0;
+    Proceso p;
+    p.id= pId;
+    p.tamReal= tam;
+    p.activo= true;
+    procesos.push_back(p);
+    if (tam%8!=0) {
+        tam /= 8;
+        tam++;
+    }
+    else
+        tam /= 8;
+    if (espacioDisponible>=tam){ // Si hay espacio disponible
+        espacioDisponible -= tam;
+        for (int i=0; i<256 && (cont<tam); i++) {
+            if (memoriaReal[i].getIdProceso()==-1) { // si ese marco esta disponible en memoria
+                Pagina auxPag(pId, cont);
+                memoriaReal[i]= auxPag;
+                cont++;
+                espacioDisponible--;
+            }
+        }
+    }
+    else{ // si el espacio total libre en memoria no es suficiente para cargar el proceso completo
+        for (int i=0; i<256 && (espacioDisponible>0); i++) {
+            if (memoriaReal[i].getIdProceso()==-1) { // si ese marco esta disponible en memoria
+                Pagina auxPag(pId, cont);
+                memoriaReal[i]= auxPag;
+                cont++;
+                espacioDisponible--;
+            }
+        }
+        for (int i=0; cont<tam; i++) {
+            Pagina auxPag(pId, cont);
+            swapLRU1(auxPag);
+            cont++;
+        }
+    }
+}
+
+void accesarDireccion(int dir, int pId, bool m){
+    if (dir%8!=0) {
+        dir /= 8;
+        dir++;
+    }
+    else
+        dir /= 8;
+    bool encontrado=false;
+    for (int i=0; i<256&&(!encontrado); i++) {
+        if (memoriaReal[i].getIdProceso()==pId&&(memoriaReal[i].getNumPagina()==dir)) { //si el marco estaba en la memoria real
+            encontrado= true;
+            memoriaReal[i].referenciar();
+        }
+    }
+    if (!encontrado) {// si el marco no estaba cargado en memoria
+        int sub;
+        for (int i=0; i<512&&(!encontrado); i++) { //encuentra el marco deseado en la memoria de swap
+            if (memoriaSwap[i].getIdProceso()==pId&&(memoriaSwap[i].getNumPagina()==dir)) {
+                encontrado= true;
+                sub= i;
+            }
+        }
+        if (espacioDisponible>0) { //no estaba en memorio real pero no hay necesidad de hacer swap
+            for (int i=0; i<256; i++) {
+                if(memoriaReal[i].getIdProceso()==(-1)){
+                    memoriaReal[i]= memoriaSwap[sub];
+                    memoriaReal[i].referenciar();
+                    espacioDisponible--;
+                    Pagina nuevo;
+                    memoriaSwap[sub]= nuevo; //con esto se borra el marco de la memoria de swap
+                }
+            }
+        }
+        else{ // no estaba en memoria principal pero si se tiene que hacer swap
+            swapLRU2(sub);
+        }
+    }
+}
+
+void liberarProceso(int pId){
+    Pagina nuevo;
+    for (int i=0; i<256; i++) {
+        if (memoriaReal[i].getIdProceso()==pId) {
+            memoriaReal[i]= nuevo;
+            espacioDisponible++;
+        }
+    }
+    for (int i=0; i<512; i++) {
+        if (memoriaSwap[i].getIdProceso()==pId) {
+            memoriaSwap[i]= nuevo;
+        }
+    }
+}
 
 
 int main(int argc, const char * argv[]) {
