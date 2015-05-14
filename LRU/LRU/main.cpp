@@ -10,6 +10,10 @@
 //Mauricio Mendez 	A00812794
 //  Copyright (c) 2015. All rights reserved.
 //
+//
+//El programa simula un manejador de memoria virtual utilizando
+//paginación y mide su rendimiento.
+//La estrategia de reemplazo de páginas para este programa es de LRU.
 
 #include <iostream>
 #include "Pagina.h"
