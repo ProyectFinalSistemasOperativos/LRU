@@ -2,12 +2,14 @@
 //  main.cpp
 //  LRU
 //
-//  Created by Iker Arbulu Lozano on 5/8/15.
-//  Copyright (c) 2015 Iker Arbulu Lozano. All rights reserved.
+//  Created by
+//Equipo 8
+//Axel Suárez 		A01195895
+//Balbina Santana 	A00812215
+//Iker Arbulu 		A01190690
+//Mauricio Mendez 	A00812794
+//  Copyright (c) 2015. All rights reserved.
 //
-
-
-//falta imprimir, agregar pagefaults, (validar), turnaround
 
 #include <iostream>
 #include "Pagina.h"
