@@ -43,6 +43,7 @@ Pagina memoriaReal[256], memoriaSwap[512];
 vector<Proceso> procesos;
 vector<string> cambiados;
 
+//impresion del reporte para caso P
 void reporteP(long int pId){
     salida<<"Se asignaron los marcos de pagina: ";
     for (int i=0; i<256; i++) {
@@ -57,7 +58,8 @@ void reporteP(long int pId){
     cambiados.clear();
 }
 
-void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
+//primer caso de swap: cuando se crea un proceso
+void swapLRU1(Pagina nuevaPag){
     int sub=0;
     string cambiado;
     clock_t menor= clock();
@@ -88,7 +90,8 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     }
 }
 
-void swapLRU2(int sub, int corrimiento, long int pId, int dir){ //el swap cuando se accesa a una direccion virtual
+//segundo caso de swap: cuando se accesa a una direccion virtual
+void swapLRU2(int sub, int corrimiento, long int pId, int dir){
     int sub2= 0;
     bool encontrado= false;
     clock_t menor= memoriaReal[0].getUltimaModificacion();
@@ -116,6 +119,7 @@ void swapLRU2(int sub, int corrimiento, long int pId, int dir){ //el swap cuando
     swapouttotales++;
 }
 
+//caso 'P' de cargar el proceso recibe tamanio del proceso y numero de proceso
 void cargarProceso(int tam, long int pId){
     vector<Pagina> cambiados;
     int cont=0;
@@ -159,6 +163,8 @@ void cargarProceso(int tam, long int pId){
     procesos.push_back(p);
 }
 
+//caso 'A' de accesar a direccion virtual, ya sea para leer o modificar
+//recibe la direccion, el numero de proceso y si se lee o modifica
 void accesarDireccion(int dir, long int pId, bool modif){
     salida<<"Direccion Virtual: "<<dir<<" Direccion Real: ";
     int corrimiento= dir%8;
@@ -207,6 +213,7 @@ void accesarDireccion(int dir, long int pId, bool modif){
     }
 }
 
+//caso 'L' para liberar procesos de la memoria
 void liberarProceso(long int pId){
     Pagina nuevo;
     for (int i=0; i<256; i++) {
@@ -236,6 +243,7 @@ void liberarProceso(long int pId){
     }
 }
 
+//convierte de string a int cada linea del archivo de texto leido
 int convierteANum(string palabra){
     bool esNum= true;
     for (int i=0; i<palabra.size()&&esNum; i++) {
@@ -250,6 +258,7 @@ int convierteANum(string palabra){
         return -1;
 }
 
+//convierte de string a long cada linea del archivo de texto leido
 long int convierteALong(string palabra){
     bool esNum= true;
     for (int i=0; i<palabra.size()&&esNum; i++) {
@@ -264,6 +273,7 @@ long int convierteALong(string palabra){
         return -1;
 }
 
+//nos dice si existe el proceso para checarlo al final del reporte
 bool existeProceso(long int pId){
     bool existe= false;
     for (int i=0; i<procesos.size()&&(!existe); i++) {
@@ -274,6 +284,7 @@ bool existeProceso(long int pId){
     return existe;
 }
 
+//checamos el tamanio del proceso
 int tamProceso(long int id){
     for (int i=0; i<procesos.size(); i++) {
         if (id==procesos[i].id) {
@@ -283,6 +294,7 @@ int tamProceso(long int id){
     return 0;
 }
 
+//impresion del reporte completo por cada 'F'
 void reporte(){
     bool activos= false;
     for (int i=0; i<procesos.size()&&(!activos); i++) {
@@ -325,6 +337,7 @@ void reporte(){
     salida<<endl<<endl;
 }
 
+//se reinician todos los parametros despues de imprimir los reportes
 void reinicioBestial(){
     espacioDisponible= 256;
     espacioDisponibleSwap= 512;
