@@ -94,9 +94,9 @@ void swapLRU1(Pagina nuevaPag){
 void swapLRU2(int sub, int corrimiento, long int pId, int dir){
     int sub2= 0;
     bool encontrado= false;
-    clock_t menor= memoriaReal[0].getUltimaModificacion();
+    clock_t menor= clock();
     for (int i=0; i<256; i++) { // se encuentra el LRU en la memoria real
-        if (memoriaReal[i].getUltimaModificacion()<menor) {
+        if (memoriaReal[i].getUltimaModificacion()<menor&&(memoriaReal[i].getIdProceso()!=-1)) {
             menor= memoriaReal[i].getUltimaModificacion();
             sub2= i;
         }
