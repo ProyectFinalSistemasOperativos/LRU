@@ -144,7 +144,6 @@ void cargarProceso(int tam, long int pId){
     else
         tam /= 8;
     if (espacioDisponible>=tam){ // Si hay espacio disponible
-        espacioDisponible -= tam;
         for (int i=0; i<256 && (cont<tam); i++) {
             if (memoriaReal[i].getIdProceso()==-1) { // si ese marco esta disponible en memoria
                 Pagina auxPag(pId, cont);
