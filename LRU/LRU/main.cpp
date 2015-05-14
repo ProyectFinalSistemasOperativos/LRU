@@ -19,6 +19,8 @@
 
 using namespace std;
 
+ofstream salida;
+
 struct Proceso{
     long int id;
     int tamReal;
@@ -40,15 +42,15 @@ vector<Proceso> procesos;
 vector<string> cambiados;
 
 void reporteP(long int pId){
-    cout<<"Se asignaron los marcos de pagina: ";
+    salida<<"Se asignaron los marcos de pagina: ";
     for (int i=0; i<256; i++) {
         if (memoriaReal[i].getIdProceso()==pId) {
-            cout<<i<<" ";
+            salida<<i<<" ";
         }
     }
-    cout<<"al proceso "<<pId<<endl;
+    salida<<"al proceso "<<pId<<endl;
     for (int i=0; i<cambiados.size(); i++) {
-        cout<<cambiados[i]<<endl;
+        salida<<cambiados[i]<<endl;
     }
     cambiados.clear();
 }
@@ -95,16 +97,16 @@ void swapLRU2(int sub, int corrimiento, long int pId, int dir){ //el swap cuando
         }
     }
     
-    cout<<(sub2*8)+corrimiento<<endl;
-    cout<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<sub2<<endl;
+    salida<<(sub2*8)+corrimiento<<endl;
+    salida<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<sub2<<endl;
     Pagina aux= memoriaReal[sub2];
     memoriaReal[sub2]= memoriaSwap[sub];
     memoriaReal[sub2].referenciar();
     for (int i=0; i<512&&(!encontrado); i++) {
         if (memoriaSwap[i].getIdProceso()==-1) {
             memoriaSwap[i]=aux;
-            cout<<"La pagina "<<sub<<" del proceso "<<pId<<" fue Swappeada a la poicion "<<i<<" del area de Swapping"<<endl;
-            cout<<endl<<endl;
+            salida<<"La pagina "<<sub<<" del proceso "<<pId<<" fue Swappeada a la poicion "<<i<<" del area de Swapping"<<endl;
+            salida<<endl<<endl;
             encontrado= true;
         }
     }
@@ -156,15 +158,15 @@ void cargarProceso(int tam, long int pId){
 }
 
 void accesarDireccion(int dir, long int pId, bool modif){
-    cout<<"Direccion Virtual: "<<dir<<" Direccion Real: ";
+    salida<<"Direccion Virtual: "<<dir<<" Direccion Real: ";
     int corrimiento= dir%8;
     dir /= 8;
     bool encontrado=false;
     for (int i=0; i<256&&(!encontrado); i++) {
         if (memoriaReal[i].getIdProceso()==pId&&(memoriaReal[i].getNumPagina()==dir)) { //si el marco estaba en la memoria real
             encontrado= true;
-            cout<<(i*8)+corrimiento<<endl;
-            cout<<endl<<endl;
+            salida<<(i*8)+corrimiento<<endl;
+            salida<<endl<<endl;
             memoriaReal[i].referenciar();
         }
     }
@@ -186,9 +188,9 @@ void accesarDireccion(int dir, long int pId, bool modif){
         if (espacioDisponible>0) { //no estaba en memorio real pero no hay necesidad de hacer swap
             for (int i=0; i<256; i++) {
                 if(memoriaReal[i].getIdProceso()==(-1)){
-                    cout<<(i*8)+corrimiento<<endl;
-                    cout<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<i<<endl;
-                    cout<<endl<<endl;
+                    salida<<(i*8)+corrimiento<<endl;
+                    salida<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<i<<endl;
+                    salida<<endl<<endl;
                     memoriaReal[i]= memoriaSwap[sub];
                     memoriaReal[i].referenciar();
                     espacioDisponible--;
@@ -207,21 +209,21 @@ void liberarProceso(long int pId){
     Pagina nuevo;
     for (int i=0; i<256; i++) {
         if (memoriaReal[i].getIdProceso()==pId) {
-            cout<<i<<" ";
+            salida<<i<<" ";
             memoriaReal[i]= nuevo;
             espacioDisponible++;
         }
     }
-    cout<<endl<<"Los marcos de pagina liberados en memoria de swap: ";
+    salida<<endl<<"Los marcos de pagina liberados en memoria de swap: ";
     for (int i=0; i<512; i++) {
         if (memoriaSwap[i].getIdProceso()==pId) {
-            cout<<i<<" ";
+            salida<<i<<" ";
             memoriaSwap[i]= nuevo;
             espacioDisponibleSwap++;
         }
     }
-    cout<<endl<<"Que ocupaba el proceso: "<<pId<<endl;
-    cout<<endl<<endl;
+    salida<<endl<<"Que ocupaba el proceso: "<<pId<<endl;
+    salida<<endl<<endl;
     bool encontrado= false;
     for (int i=0; i<procesos.size() && (!encontrado); i++) {
         if (procesos[i].id==pId) {
@@ -287,38 +289,38 @@ void reporte(){
         }
     }
     if (activos) {
-        cout <<"Error. Proceso(s) todavia en memoria: ";
+        salida <<"Error. Proceso(s) todavia en memoria: ";
         for (int i=0; i<procesos.size(); i++) {
             if (procesos[i].activo) {
-                cout <<procesos[i].id <<" ";
+                salida <<procesos[i].id <<" ";
             }
         }
-        cout<<endl;
+        salida<<endl;
     }
     double turnaround, turnaroundprom = 0;
     int inactivos = 0;
-    cout<<"Fin. Reporte de salida: " <<endl <<"Turnarounds: \n";
+    salida<<"Fin. Reporte de salida: " <<endl <<"Turnarounds: \n";
     for(int i=0; i < procesos.size(); i++){
         if (!procesos[i].activo) {
             inactivos++;
             turnaround = (double)(procesos[i].stampLiberacion-procesos[i].stampCreacion);
-            cout<<"Proceso " <<procesos[i].id <<" " <<turnaround<<endl;
+            salida<<"Proceso " <<procesos[i].id <<" " <<turnaround<<endl;
             turnaroundprom += turnaround;
         }
     }
     if (inactivos>0) {
         turnaroundprom /= (double)inactivos;
-        cout <<endl <<"Turnaround promedio: " <<turnaroundprom <<endl <<"Swaps: " <<endl;
+        salida <<endl <<"Turnaround promedio: " <<turnaroundprom <<endl <<"Swaps: " <<endl;
     }
     else
-        cout <<endl <<"Turnaround promedio: " <<0 <<endl <<"Swaps: " <<endl;
-    cout <<"SwapIn: "<<swapintotales<<endl;
-    cout<<"SwapOut: "<<swapouttotales<<endl;
-    cout<<"Page faults: "<<endl;
+        salida <<endl <<"Turnaround promedio: " <<0 <<endl <<"Swaps: " <<endl;
+    salida <<"SwapIn: "<<swapintotales<<endl;
+    salida<<"SwapOut: "<<swapouttotales<<endl;
+    salida<<"Page faults: "<<endl;
     for (int i=0; i<procesos.size(); i++) {
-        cout<<"Proceso "<<procesos[i].id<<": "<<procesos[i].faults<<endl;
+        salida<<"Proceso "<<procesos[i].id<<": "<<procesos[i].faults<<endl;
     }
-    cout<<endl<<endl;
+    salida<<endl<<endl;
 }
 
 void reinicioBestial(){
@@ -343,6 +345,7 @@ int main(int argc, const char * argv[]) {
     
     ifstream entrada;
     entrada.open ("/Users/axelsuarez/LRU/LRU/LRU/trve.txt");
+    salida.open("/Users/axelsuarez/LRU/LRU/LRU/output.txt");
     string linea;
     vector<string> lineaSeparada;
     while(getline(entrada, linea)) {
@@ -363,56 +366,56 @@ int main(int argc, const char * argv[]) {
                                     if (tam<=2048) {
                                         if (!existeProceso(id)) {
                                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                                cout<<lineaSeparada[i]<<" ";
+                                                salida<<lineaSeparada[i]<<" ";
                                             }
-                                            cout<<endl;
+                                            salida<<endl;
                                             cargarProceso(tam, id);
                                             reporteP(id);
-                                            cout<<endl<<endl;
+                                            salida<<endl<<endl;
                                         }
                                         else{
                                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                                cout<<lineaSeparada[i]<<" ";
+                                                salida<<lineaSeparada[i]<<" ";
                                             }
-                                            cout<<endl;
-                                            cout<<"Error: ese proceso ya existe"<<endl;
-                                            cout<<endl<<endl;
+                                            salida<<endl;
+                                            salida<<"Error: ese proceso ya existe"<<endl;
+                                            salida<<endl<<endl;
                                         }
                                     }
                                     else{
                                         for (int i=0; i<lineaSeparada.size(); i++) {
-                                            cout<<lineaSeparada[i]<<" ";
+                                            salida<<lineaSeparada[i]<<" ";
                                         }
-                                        cout<<endl;
-                                        cout<<"Error: el tamaño del proceso es muy grande para cargarse en memoria real"<<endl;
-                                        cout<<endl<<endl;
+                                        salida<<endl;
+                                        salida<<"Error: el tamaño del proceso es muy grande para cargarse en memoria real"<<endl;
+                                        salida<<endl<<endl;
                                     }
                                 }
                                 else{
                                     for (int i=0; i<lineaSeparada.size(); i++) {
-                                        cout<<lineaSeparada[i]<<" ";
+                                        salida<<lineaSeparada[i]<<" ";
                                     }
-                                    cout<<endl;
-                                    cout<<"Error: id invalido"<<endl;
-                                    cout<<endl<<endl;
+                                    salida<<endl;
+                                    salida<<"Error: id invalido"<<endl;
+                                    salida<<endl<<endl;
                                 }
                             }
                             else{
                                 for (int i=0; i<lineaSeparada.size(); i++) {
-                                    cout<<lineaSeparada[i]<<" ";
+                                    salida<<lineaSeparada[i]<<" ";
                                 }
-                                cout<<endl;
-                                cout<<"Error: tamanio invalido"<<endl;
-                                cout<<endl<<endl;
+                                salida<<endl;
+                                salida<<"Error: tamanio invalido"<<endl;
+                                salida<<endl<<endl;
                             }
                         }
                         else{
                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                cout<<lineaSeparada[i]<<" ";
+                                salida<<lineaSeparada[i]<<" ";
                             }
-                            cout<<endl;
-                            cout<<"Error: parametros incorrectos"<<endl;
-                            cout<<endl<<endl;
+                            salida<<endl;
+                            salida<<"Error: parametros incorrectos"<<endl;
+                            salida<<endl<<endl;
                         }
                     break;
                     
@@ -425,53 +428,53 @@ int main(int argc, const char * argv[]) {
                                     if (dir<tamProceso(id)) {
                                         if (lineaSeparada[3][0]=='0'){
                                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                                cout<<lineaSeparada[i]<<" ";
+                                                salida<<lineaSeparada[i]<<" ";
                                             }
-                                            cout<<endl;
+                                            salida<<endl;
                                             accesarDireccion(dir, id, false);
                                         }
                                         else{
                                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                                cout<<lineaSeparada[i]<<" ";
+                                                salida<<lineaSeparada[i]<<" ";
                                             }
-                                            cout<<endl;
+                                            salida<<endl;
                                             accesarDireccion(dir, id, true);
                                         }
                                     }
                                     else{
                                         for (int i=0; i<lineaSeparada.size(); i++) {
-                                            cout<<lineaSeparada[i]<<" ";
+                                            salida<<lineaSeparada[i]<<" ";
                                         }
-                                        cout<<endl;
-                                        cout<<"Error: direccion fuera de rango"<<endl;
-                                        cout<<endl<<endl;
+                                        salida<<endl;
+                                        salida<<"Error: direccion fuera de rango"<<endl;
+                                        salida<<endl<<endl;
                                     }
                                 }
                                 else{
                                     for (int i=0; i<lineaSeparada.size(); i++) {
-                                        cout<<lineaSeparada[i]<<" ";
+                                        salida<<lineaSeparada[i]<<" ";
                                     }
-                                    cout<<endl;
-                                    cout<<"Error: ese proceso no existe"<<endl;
-                                    cout<<endl<<endl;
+                                    salida<<endl;
+                                    salida<<"Error: ese proceso no existe"<<endl;
+                                    salida<<endl<<endl;
                                 }
                             }
                             else{
                                 for (int i=0; i<lineaSeparada.size(); i++) {
-                                    cout<<lineaSeparada[i]<<" ";
+                                    salida<<lineaSeparada[i]<<" ";
                                 }
-                                cout<<endl;
-                                cout<<"Error: id invalido"<<endl;
-                                cout<<endl<<endl;
+                                salida<<endl;
+                                salida<<"Error: id invalido"<<endl;
+                                salida<<endl<<endl;
                             }
                         }
                         else{
                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                cout<<lineaSeparada[i]<<" ";
+                                salida<<lineaSeparada[i]<<" ";
                             }
-                            cout<<endl;
-                            cout<<"Error: parametros incorrectos"<<endl;
-                            cout<<endl<<endl;
+                            salida<<endl;
+                            salida<<"Error: parametros incorrectos"<<endl;
+                            salida<<endl<<endl;
                         }
                     break;
                     
@@ -481,60 +484,60 @@ int main(int argc, const char * argv[]) {
                             if (id!=-1) {
                                 if (existeProceso(id)) {
                                     for (int i=0; i<lineaSeparada.size(); i++) {
-                                        cout<<lineaSeparada[i]<<" ";
+                                        salida<<lineaSeparada[i]<<" ";
                                     }
-                                    cout<<endl;
-                                    cout<<"Los marcos de pagina liberados en memoria real fueron: ";
+                                    salida<<endl;
+                                    salida<<"Los marcos de pagina liberados en memoria real fueron: ";
                                     liberarProceso(id);
                                 }
                                 else{
                                     for (int i=0; i<lineaSeparada.size(); i++) {
-                                        cout<<lineaSeparada[i]<<" ";
+                                        salida<<lineaSeparada[i]<<" ";
                                     }
-                                    cout<<endl;
-                                    cout<<"Error: ese proceso no existe"<<endl;
-                                    cout<<endl<<endl;
+                                    salida<<endl;
+                                    salida<<"Error: ese proceso no existe"<<endl;
+                                    salida<<endl<<endl;
                                 }
                             }
                             else{
                                 for (int i=0; i<lineaSeparada.size(); i++) {
-                                    cout<<lineaSeparada[i]<<" ";
+                                    salida<<lineaSeparada[i]<<" ";
                                 }
-                                cout<<endl;
-                                cout<<"Error: invalido"<<endl;
-                                cout<<endl<<endl;
+                                salida<<endl;
+                                salida<<"Error: invalido"<<endl;
+                                salida<<endl<<endl;
                             }
                         }
                         else{
                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                cout<<lineaSeparada[i]<<" ";
+                                salida<<lineaSeparada[i]<<" ";
                             }
-                            cout<<endl;
-                            cout<<"Error: parametros incorrectos"<<endl;
-                            cout<<endl<<endl;
+                            salida<<endl;
+                            salida<<"Error: parametros incorrectos"<<endl;
+                            salida<<endl<<endl;
                         }
                     break;
                     
                     case 'F':
                         if (lineaSeparada.size()==1) {
                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                cout<<lineaSeparada[i]<<" ";
+                                salida<<lineaSeparada[i]<<" ";
                             }
-                            cout<<endl;
+                            salida<<endl;
                             reporte();
                             reinicioBestial();
                         }else{
                             for (int i=0; i<lineaSeparada.size(); i++) {
-                                cout<<lineaSeparada[i]<<" ";
+                                salida<<lineaSeparada[i]<<" ";
                             }
-                            cout<<endl;
-                            cout<<"Error: parametros incorrectos"<<endl;
-                            cout<<endl<<endl;
+                            salida<<endl;
+                            salida<<"Error: parametros incorrectos"<<endl;
+                            salida<<endl<<endl;
                         }
                     break;
                     
                     case 'E':
-                        cout<<"babay"<<endl;
+                        salida<<"babay"<<endl;
                         entrada.close();
                         return 0;
                     break;
@@ -548,10 +551,6 @@ int main(int argc, const char * argv[]) {
         lineaSeparada.clear();
     }
     entrada.close();
-    
-    ofstream salida;
-    salida.open("/Users/Balbina/Documents/8vo semestre/Sistemas Operativo/2015/proyecto fina/LRU/LRU/LRU/output.txt");
-    salida <<"escribir o variables al text. \n" <<"hola \n";
     salida.close();
     
     return 0;
