@@ -26,7 +26,7 @@ struct Proceso{
     clock_t stampCreacion;
     clock_t stampLiberacion;
     bool activo;
-    int faults;
+    int faults=0;
 };
 
 int espacioDisponible= 256;
@@ -84,7 +84,7 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     }
 }
 
-void swapLRU2(int sub, int corrimiento, int pId, int dir){ //el swap cuando se accesa a una direccion virtual
+void swapLRU2(int sub, int corrimiento, long int pId, int dir){ //el swap cuando se accesa a una direccion virtual
     int sub2= 0;
     clock_t menor= memoriaReal[0].getUltimaModificacion();
     for (int i=0; i<256; i++) { // se encuentra el LRU en la memoria real
@@ -201,20 +201,25 @@ void accesarDireccion(int dir, long int pId, bool modif){
     }
 }
 
-void liberarProceso(int pId){
+void liberarProceso(long int pId){
     Pagina nuevo;
     for (int i=0; i<256; i++) {
         if (memoriaReal[i].getIdProceso()==pId) {
+            cout<<i<<" ";
             memoriaReal[i]= nuevo;
             espacioDisponible++;
         }
     }
+    cout<<endl<<"Los marcos de pagina liberados en memoria de swap: ";
     for (int i=0; i<512; i++) {
         if (memoriaSwap[i].getIdProceso()==pId) {
+            cout<<i<<" ";
             memoriaSwap[i]= nuevo;
             espacioDisponibleSwap++;
         }
     }
+    cout<<endl<<"Que ocupaba el proceso: "<<pId<<endl;
+    cout<<endl<<endl;
     bool encontrado= false;
     for (int i=0; i<procesos.size() && (!encontrado); i++) {
         if (procesos[i].id==pId) {
@@ -285,8 +290,8 @@ void reporte(){
     for(int i=0; i < procesos.size(); i++){
         if (!procesos[i].activo) {
             inactivos++;
-            turnaround = (double)(procesos[i].stampLiberacion-procesos[i].stampLiberacion);
-            cout <<"Proceso " <<procesos[i].id <<" " <<turnaround;
+            turnaround = (double)(procesos[i].stampLiberacion-procesos[i].stampCreacion);
+            cout<<"Proceso " <<procesos[i].id <<" " <<turnaround<<endl;
             turnaroundprom += turnaround;
         }
     }
@@ -396,6 +401,11 @@ int main(int argc, const char * argv[]) {
                             long int id= convierteALong(lineaSeparada[1]);
                             if (id!=-1) {
                                 if (existeProceso(id)) {
+                                    for (int i=0; i<lineaSeparada.size(); i++) {
+                                        cout<<lineaSeparada[i]<<" ";
+                                    }
+                                    cout<<endl;
+                                    cout<<"Los marcos de pagina liberados en memoria real fueron: ";
                                     liberarProceso(id);
                                 }
                                 else{
@@ -413,7 +423,11 @@ int main(int argc, const char * argv[]) {
                     
                     case 'F':
                         if (lineaSeparada.size()==1) {
-                            
+                            for (int i=0; i<lineaSeparada.size(); i++) {
+                                cout<<lineaSeparada[i]<<" ";
+                            }
+                            cout<<endl;
+                            reporte();
                         }else{
                             cout<<"Error: parametros incorrectos"<<endl;
                         }
