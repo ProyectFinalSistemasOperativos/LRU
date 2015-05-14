@@ -44,7 +44,9 @@ int swapouttotales = 0;
 
 Pagina memoriaReal[256], memoriaSwap[512];
 
+//procesos creados
 vector<Proceso> procesos;
+//string de impresion para reporte p
 vector<string> cambiados;
 
 //impresion del reporte para caso P
@@ -65,6 +67,7 @@ void reporteP(long int pId){
 //primer caso de swap: cuando se crea un proceso
 void swapLRU1(Pagina nuevaPag){
     int sub=0;
+    //string que imprime las paginas cambiadas, todo el texto
     string cambiado;
     clock_t menor= clock();
     for (int i=0; i<256; i++) { //primero se encuentra el LRU en la memoria real
@@ -73,6 +76,7 @@ void swapLRU1(Pagina nuevaPag){
             sub= i;
         }
     }
+    //encuentra espacio vacio en el swap
     bool encontrado=false;
     for (int i=0; i<512&&(!encontrado); i++) { // Aqui se busca un espacio libre en el swap para hacer el cambio
         if (memoriaSwap[i].getIdProceso()==(-1)) {
@@ -97,7 +101,7 @@ void swapLRU1(Pagina nuevaPag){
 //segundo caso de swap: cuando se accesa a una direccion virtual
 void swapLRU2(int sub, int corrimiento, long int pId, int dir){
     int sub2= 0;
-    bool encontrado= false;
+    
     clock_t menor= clock();
     for (int i=0; i<256; i++) { // se encuentra el LRU en la memoria real
         if (memoriaReal[i].getUltimaModificacion()<menor&&(memoriaReal[i].getIdProceso()!=-1)) {
@@ -111,6 +115,9 @@ void swapLRU2(int sub, int corrimiento, long int pId, int dir){
     Pagina aux= memoriaReal[sub2];
     memoriaReal[sub2]= memoriaSwap[sub];
     memoriaReal[sub2].referenciar();
+    
+    //cuando encuentras espacio en memoria swap
+    bool encontrado= false;
     for (int i=0; i<512&&(!encontrado); i++) {
         if (memoriaSwap[i].getIdProceso()==-1) {
             memoriaSwap[i]=aux;
@@ -125,7 +132,6 @@ void swapLRU2(int sub, int corrimiento, long int pId, int dir){
 
 //caso 'P' de cargar el proceso recibe tamanio del proceso y numero de proceso
 void cargarProceso(int tam, long int pId){
-    vector<Pagina> cambiados;
     int cont=0;
     Proceso p;
     p.id= pId;
@@ -300,7 +306,9 @@ int tamProceso(long int id){
 
 //impresion del reporte completo por cada 'F'
 void reporte(){
+    //procesos activos
     bool activos= false;
+    
     for (int i=0; i<procesos.size()&&(!activos); i++) {
         if (procesos[i].activo) {
             activos= true;
@@ -315,8 +323,12 @@ void reporte(){
         }
         salida<<endl;
     }
+    
     double turnaround, turnaroundprom = 0;
+    
+    //procesos inactivos
     int inactivos = 0;
+    
     salida<<"Fin. Reporte de salida: " <<endl <<"Turnarounds: \n";
     for(int i=0; i < procesos.size(); i++){
         if (!procesos[i].activo) {
@@ -365,8 +377,12 @@ int main(int argc, const char * argv[]) {
     ifstream entrada;
     entrada.open ("input.txt");
     salida.open("output.txt");
+    
+    //leer por linea en el archivo
     string linea;
+    //separar la linea
     vector<string> lineaSeparada;
+    
     while(getline(entrada, linea)) {
         stringstream lineaStream (linea);
         string aux;
