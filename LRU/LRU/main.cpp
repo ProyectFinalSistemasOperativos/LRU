@@ -26,10 +26,13 @@ struct Proceso{
     clock_t stampCreacion;
     clock_t stampLiberacion;
     bool activo;
+    int faults;
 };
 
 int espacioDisponible= 256;
 int espacioDisponibleSwap= 512;
+int swapintotales = 0;
+int swapouttotales = 0;
 
 Pagina memoriaReal[256], memoriaSwap[512];
 
@@ -51,12 +54,13 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
             espacioDisponibleSwap--;
             nuevaPag.referenciar(); //para actualizar el timestamp
             memoriaReal[sub]= nuevaPag;
+            swapouttotales++;
         }
     }
     
 }
 
-void swapLRU2(int sub){
+void swapLRU2(int sub){ //el swap cuando se accesa a una direccion virtual
     int sub2= 0;
     clock_t menor= memoriaReal[0].getUltimaModificacion();
     for (int i=1; i<256; i++) { // se encuentra el LRU en la memoria real
@@ -68,10 +72,14 @@ void swapLRU2(int sub){
     Pagina aux= memoriaReal[sub2];
     memoriaReal[sub2]= memoriaSwap[sub];
     memoriaReal[sub2].referenciar();
+    swapintotales++;
     memoriaSwap[sub]= aux;
+    swapouttotales++;
 }
 
 void cargarProceso(int tam, long int pId){
+    vector<Pagina> cambiados;
+    cout<<"Se asignaron los marcos de página ";
     int cont=0;
     Proceso p;
     p.id= pId;
@@ -91,8 +99,10 @@ void cargarProceso(int tam, long int pId){
                 memoriaReal[i]= auxPag;
                 cont++;
                 espacioDisponible--;
+                cout<<i<<" ";
             }
         }
+        cout<<"al proceso "<<p.id<<endl;
     }
     else{ // si el espacio total libre en memoria no es suficiente para cargar el proceso completo
         for (int i=0; i<256 && (espacioDisponible>0); i++) {
@@ -101,6 +111,7 @@ void cargarProceso(int tam, long int pId){
                 memoriaReal[i]= auxPag;
                 cont++;
                 espacioDisponible--;
+                cout<<i<<" ";
             }
         }
         for (int i=0; cont<tam; i++) {
@@ -113,7 +124,7 @@ void cargarProceso(int tam, long int pId){
     procesos.push_back(p);
 }
 
-void accesarDireccion(int dir, int pId, bool modif){
+void accesarDireccion(int dir, long int pId, bool modif){
     if (dir%8!=0) {
         dir /= 8;
         dir++;
@@ -128,6 +139,13 @@ void accesarDireccion(int dir, int pId, bool modif){
         }
     }
     if (!encontrado) {// si el marco no estaba cargado en memoria
+        bool faultsumada = false;
+        for (int i = 0; procesos.size()&&!faultsumada; i++) {
+            if (procesos[i].id == pId) {
+                procesos[i].faults++;
+                faultsumada = true;
+            }
+        }
         int sub;
         for (int i=0; i<512&&(!encontrado); i++) { //encuentra el marco deseado en la memoria de swap
             if (memoriaSwap[i].getIdProceso()==pId&&(memoriaSwap[i].getNumPagina()==dir)) {
@@ -243,10 +261,12 @@ void reporte(){
     }
     turnaroundprom /= (double)inactivos;
     cout <<endl <<"Turnaround promedio: " <<turnaroundprom <<endl <<"Swaps: " <<endl;
-    for (int i=0; i < procesos.size(); i++) {
-        cout <<"Proceso " <<procesos[i].id <<" " <<procesos[i].swaps <<endl;
+    cout <<"SwapIn: "<<swapintotales<<endl;
+    cout<<"SwapOut: "<<swapouttotales<<endl;
+    cout<<"Page faults: "<<endl;
+    for (int i=0; i<procesos.size(); i++) {
+        cout<<"Proceso "<<procesos[i].id<<": "<<procesos[i].faults<<endl;
     }
-    int pageFaults;
 }
 
 int main(int argc, const char * argv[]) {
