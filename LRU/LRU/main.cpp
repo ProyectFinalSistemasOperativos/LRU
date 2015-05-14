@@ -344,8 +344,8 @@ void reinicioBestial(){
 int main(int argc, const char * argv[]) {
     
     ifstream entrada;
-    entrada.open ("/Users/axelsuarez/LRU/LRU/LRU/trve.txt");
-    salida.open("/Users/axelsuarez/LRU/LRU/LRU/output.txt");
+    entrada.open ("input.txt");
+    salida.open("output.txt");
     string linea;
     vector<string> lineaSeparada;
     while(getline(entrada, linea)) {

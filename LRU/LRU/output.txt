@@ -30,9 +30,9 @@ Que ocupaba el proceso: 1
 F 
 Fin. Reporte de salida: 
 Turnarounds: 
-Proceso 1 49
+Proceso 1 96
 
-Turnaround promedio: 49
+Turnaround promedio: 96
 Swaps: 
 SwapIn: 0
 SwapOut: 0
@@ -83,9 +83,9 @@ Que ocupaba el proceso: 1
 F 
 Fin. Reporte de salida: 
 Turnarounds: 
-Proceso 1 38
+Proceso 1 79
 
-Turnaround promedio: 38
+Turnaround promedio: 79
 Swaps: 
 SwapIn: 0
 SwapOut: 0
@@ -110,9 +110,9 @@ Que ocupaba el proceso: 5328000
 F 
 Fin. Reporte de salida: 
 Turnarounds: 
-Proceso 5328000 38
+Proceso 5328000 81
 
-Turnaround promedio: 38
+Turnaround promedio: 81
 Swaps: 
 SwapIn: 0
 SwapOut: 0
@@ -190,11 +190,11 @@ Que ocupaba el proceso: 3
 F 
 Fin. Reporte de salida: 
 Turnarounds: 
-Proceso 1 367
-Proceso 2 276
-Proceso 3 249
+Proceso 1 699
+Proceso 2 556
+Proceso 3 499
 
-Turnaround promedio: 297.333
+Turnaround promedio: 584.667
 Swaps: 
 SwapIn: 2
 SwapOut: 7
@@ -293,12 +293,12 @@ F
 Error. Proceso(s) todavia en memoria: 5 
 Fin. Reporte de salida: 
 Turnarounds: 
-Proceso 1 399
-Proceso 2 301
-Proceso 3 298
-Proceso 4 106
+Proceso 1 781
+Proceso 2 606
+Proceso 3 605
+Proceso 4 224
 
-Turnaround promedio: 276
+Turnaround promedio: 554
 Swaps: 
 SwapIn: 1
 SwapOut: 6
