@@ -168,7 +168,7 @@ void accesarDireccion(int dir, long int pId, bool modif){
     }
     if (!encontrado) {// si el marco no estaba cargado en memoria
         bool faultsumada = false;
-        for (int i = 0; procesos.size()&&!faultsumada; i++) {
+        for (int i = 0; i<procesos.size()&&!faultsumada; i++) {
             if (procesos[i].id == pId) {
                 procesos[i].faults++;
                 faultsumada = true;
@@ -305,10 +305,28 @@ void reporte(){
     }
 }
 
+void reinicioBestial(){
+    espacioDisponible= 256;
+    espacioDisponibleSwap= 512;
+    swapintotales = 0;
+    swapouttotales = 0;
+    
+    Pagina nuevo;
+    for (int i=0; i<256; i++) {
+        memoriaReal[i]=nuevo;
+        memoriaSwap[i]=nuevo;
+    }
+    for (int i=256; i<512; i++) {
+        memoriaSwap[i]=nuevo;
+    }
+    
+    procesos.clear();
+}
+
 int main(int argc, const char * argv[]) {
     
     ifstream entrada;
-    entrada.open ("/Users/axelsuarez/LRU/LRU/LRU/input.txt");
+    entrada.open ("/Users/axelsuarez/LRU/LRU/LRU/trve.txt");
     string linea;
     vector<string> lineaSeparada;
     while(getline(entrada, linea)) {
@@ -428,6 +446,7 @@ int main(int argc, const char * argv[]) {
                             }
                             cout<<endl;
                             reporte();
+                            reinicioBestial();
                         }else{
                             cout<<"Error: parametros incorrectos"<<endl;
                         }
