@@ -53,14 +53,11 @@ void reporteP(long int pId){
     cambiados.clear();
 }
 
-void reporteA(){
-}
-
 void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     int sub=0;
     string cambiado;
     clock_t menor= memoriaReal[sub].getUltimaModificacion();
-    for (int i=1; i<256; i++) { //primero se encuentra el LRU en la memoria real
+    for (int i=0; i<256; i++) { //primero se encuentra el LRU en la memoria real
         if (memoriaReal[i].getUltimaModificacion()<menor) {
             menor= memoriaReal[i].getUltimaModificacion();
             sub= i;
@@ -87,20 +84,29 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     }
 }
 
-void swapLRU2(int sub){ //el swap cuando se accesa a una direccion virtual
+void swapLRU2(int sub, int corrimiento, int pId, int dir){ //el swap cuando se accesa a una direccion virtual
     int sub2= 0;
     clock_t menor= memoriaReal[0].getUltimaModificacion();
-    for (int i=1; i<256; i++) { // se encuentra el LRU en la memoria real
+    for (int i=0; i<256; i++) { // se encuentra el LRU en la memoria real
         if (memoriaReal[i].getUltimaModificacion()<menor) {
             menor= memoriaReal[i].getUltimaModificacion();
             sub2= i;
         }
     }
+    
+    cout<<(sub2*8)+corrimiento<<endl;
+    cout<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<sub2<<endl;
     Pagina aux= memoriaReal[sub2];
     memoriaReal[sub2]= memoriaSwap[sub];
     memoriaReal[sub2].referenciar();
+    for (int i=0; i<512; i++) {
+        if (memoriaSwap[i].getIdProceso()==-1) {
+            memoriaSwap[i]=aux;
+            cout<<"La pagina"<<sub<<" del proceso "<<pId<<" Swappeada a la poicion "<<i<<" del area de Swapping"<<endl;
+            cout<<endl<<endl;
+        }
+    }
     swapintotales++;
-    memoriaSwap[sub]= aux;
     swapouttotales++;
 }
 
@@ -148,16 +154,15 @@ void cargarProceso(int tam, long int pId){
 }
 
 void accesarDireccion(int dir, long int pId, bool modif){
-    if (dir%8!=0) {
-        dir /= 8;
-        dir++;
-    }
-    else
-        dir /= 8;
+    cout<<"Direccion Virtual: "<<dir<<" Direccion Real: ";
+    int corrimiento= dir%8;
+    dir /= 8;
     bool encontrado=false;
     for (int i=0; i<256&&(!encontrado); i++) {
         if (memoriaReal[i].getIdProceso()==pId&&(memoriaReal[i].getNumPagina()==dir)) { //si el marco estaba en la memoria real
             encontrado= true;
+            cout<<(i*8)+corrimiento<<endl;
+            cout<<endl<<endl;
             memoriaReal[i].referenciar();
         }
     }
@@ -179,6 +184,9 @@ void accesarDireccion(int dir, long int pId, bool modif){
         if (espacioDisponible>0) { //no estaba en memorio real pero no hay necesidad de hacer swap
             for (int i=0; i<256; i++) {
                 if(memoriaReal[i].getIdProceso()==(-1)){
+                    cout<<(i*8)+corrimiento<<endl;
+                    cout<<"Se localizo la pagina "<<dir/8<<" del proceso "<<pId<<" que estaba en la posicion "<<sub<<" de Swapping y se cargo al marco "<<i<<endl;
+                    cout<<endl<<endl;
                     memoriaReal[i]= memoriaSwap[sub];
                     memoriaReal[i].referenciar();
                     espacioDisponible--;
@@ -188,7 +196,7 @@ void accesarDireccion(int dir, long int pId, bool modif){
             }
         }
         else{ // no estaba en memoria principal pero si se tiene que hacer swap
-            swapLRU2(sub);
+            swapLRU2(sub, corrimiento, pId, dir);
         }
     }
 }
@@ -315,8 +323,13 @@ int main(int argc, const char * argv[]) {
                                 if (id!=-1) {
                                     if (tam<=((espacioDisponible*8)+(espacioDisponibleSwap*8))&&tam<=2048) {
                                         if (!existeProceso(id)) {
+                                            for (int i=0; i<lineaSeparada.size(); i++) {
+                                                cout<<lineaSeparada[i]<<" ";
+                                            }
+                                            cout<<endl;
                                             cargarProceso(tam, id);
                                             reporteP(id);
+                                            cout<<endl<<endl;
                                         }
                                         else{
                                             cout<<"Error: ese proceso ya existe"<<endl;
@@ -347,9 +360,17 @@ int main(int argc, const char * argv[]) {
                                     int dir= convierteANum(lineaSeparada[1]);
                                     if (dir<tamProceso(id)) {
                                         if (lineaSeparada[3][0]=='0'){
+                                            for (int i=0; i<lineaSeparada.size(); i++) {
+                                                cout<<lineaSeparada[i]<<" ";
+                                            }
+                                            cout<<endl;
                                             accesarDireccion(dir, id, false);
                                         }
                                         else{
+                                            for (int i=0; i<lineaSeparada.size(); i++) {
+                                                cout<<lineaSeparada[i]<<" ";
+                                            }
+                                            cout<<endl;
                                             accesarDireccion(dir, id, true);
                                         }
                                     }
