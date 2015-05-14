@@ -37,9 +37,28 @@ int swapouttotales = 0;
 Pagina memoriaReal[256], memoriaSwap[512];
 
 vector<Proceso> procesos;
+vector<string> cambiados;
+
+void reporteP(long int pId){
+    cout<<"Se asignaron los marcos de pagina: ";
+    for (int i=0; i<256; i++) {
+        if (memoriaReal[i].getIdProceso()==pId) {
+            cout<<i<<" ";
+        }
+    }
+    cout<<"al proceso "<<pId<<endl;
+    for (int i=0; i<cambiados.size(); i++) {
+        cout<<cambiados[i]<<endl;
+    }
+    cambiados.clear();
+}
+
+void reporteA(){
+}
 
 void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
     int sub=0;
+    string cambiado;
     clock_t menor= memoriaReal[sub].getUltimaModificacion();
     for (int i=1; i<256; i++) { //primero se encuentra el LRU en la memoria real
         if (memoriaReal[i].getUltimaModificacion()<menor) {
@@ -55,9 +74,17 @@ void swapLRU1(Pagina nuevaPag){ //el swap de cuando se crea un proceso
             nuevaPag.referenciar(); //para actualizar el timestamp
             memoriaReal[sub]= nuevaPag;
             swapouttotales++;
+            encontrado= true;
+            cambiado="La pagina ";
+            cambiado+= to_string(sub);
+            cambiado+=" del proceso ";
+            cambiado+= to_string(memoriaSwap[i].getIdProceso());
+            cambiado+=" fue Swapeada a la posicion ";
+            cambiado+= to_string(i);
+            cambiado+=" del area de swaping";
+            cambiados.push_back(cambiado);
         }
     }
-    
 }
 
 void swapLRU2(int sub){ //el swap cuando se accesa a una direccion virtual
@@ -79,7 +106,6 @@ void swapLRU2(int sub){ //el swap cuando se accesa a una direccion virtual
 
 void cargarProceso(int tam, long int pId){
     vector<Pagina> cambiados;
-    cout<<"Se asignaron los marcos de página ";
     int cont=0;
     Proceso p;
     p.id= pId;
@@ -99,10 +125,8 @@ void cargarProceso(int tam, long int pId){
                 memoriaReal[i]= auxPag;
                 cont++;
                 espacioDisponible--;
-                cout<<i<<" ";
             }
         }
-        cout<<"al proceso "<<p.id<<endl;
     }
     else{ // si el espacio total libre en memoria no es suficiente para cargar el proceso completo
         for (int i=0; i<256 && (espacioDisponible>0); i++) {
@@ -111,7 +135,6 @@ void cargarProceso(int tam, long int pId){
                 memoriaReal[i]= auxPag;
                 cont++;
                 espacioDisponible--;
-                cout<<i<<" ";
             }
         }
         for (int i=0; cont<tam; i++) {
@@ -290,9 +313,10 @@ int main(int argc, const char * argv[]) {
                             if (tam!=-1) {
                                 long int id= convierteALong(lineaSeparada[2]);
                                 if (id!=-1) {
-                                    if (tam<=((espacioDisponible*8)+(espacioDisponibleSwap*8))) {
+                                    if (tam<=((espacioDisponible*8)+(espacioDisponibleSwap*8))&&tam<=2048) {
                                         if (!existeProceso(id)) {
                                             cargarProceso(tam, id);
+                                            reporteP(id);
                                         }
                                         else{
                                             cout<<"Error: ese proceso ya existe"<<endl;
