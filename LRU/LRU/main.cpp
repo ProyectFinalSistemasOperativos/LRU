@@ -22,6 +22,7 @@ using namespace std;
 struct Proceso{
     long int id;
     int tamReal;
+    int swaps=0;
     clock_t stampCreacion;
     clock_t stampLiberacion;
     bool activo;
@@ -222,6 +223,32 @@ int tamProceso(long int id){
     return 0;
 }
 
+void reporte(){
+    cout <<"Error. Proceso(s) todavia en memoria: ";
+    double turnaround, turnaroundprom = 0;
+    int inactivos = 0;
+    for (int i=0; i<procesos.size(); i++) {
+        if (procesos[i].activo) {
+            cout <<procesos[i].id <<" ";
+        }
+    }
+    cout <<endl <<"Fin. Reporte de salida: " <<endl <<"Turnarounds: \n";
+    for(int i=0; i < procesos.size(); i++){
+        if (!procesos[i].activo) {
+            inactivos++;
+            turnaround = (double)(procesos[i].stampLiberacion-procesos[i].stampLiberacion);
+            cout <<"Proceso " <<procesos[i].id <<" " <<turnaround;
+            turnaroundprom += turnaround;
+        }
+    }
+    turnaroundprom /= (double)inactivos;
+    cout <<endl <<"Turnaround promedio: " <<turnaroundprom <<endl <<"Swaps: " <<endl;
+    for (int i=0; i < procesos.size(); i++) {
+        cout <<"Proceso " <<procesos[i].id <<" " <<procesos[i].swaps <<endl;
+    }
+    int pageFaults;
+}
+
 int main(int argc, const char * argv[]) {
     
     ifstream entrada;
@@ -269,40 +296,62 @@ int main(int argc, const char * argv[]) {
                     break;
                     
                     case 'A':
-                    if (lineaSeparada.size()==4&&(lineaSeparada[3].size()==1)&&(lineaSeparada[3][0]=='0'||lineaSeparada[3][0]=='1')) {
-                        long int id= convierteALong(lineaSeparada[2]);
-                        if (id!=-1) {
-                            if (existeProceso(id)) {
-                                int dir= convierteANum(lineaSeparada[1]);
-                                if (dir<tamProceso(id)) {
-                                    if (lineaSeparada[3][0]=='0'){
-                                        accesarDireccion(dir, id, false);
+                        if (lineaSeparada.size()==4&&(lineaSeparada[3].size()==1)&&(lineaSeparada[3][0]=='0'||lineaSeparada[3][0]=='1')) {
+                            long int id= convierteALong(lineaSeparada[2]);
+                            if (id!=-1) {
+                                if (existeProceso(id)) {
+                                    int dir= convierteANum(lineaSeparada[1]);
+                                    if (dir<tamProceso(id)) {
+                                        if (lineaSeparada[3][0]=='0'){
+                                            accesarDireccion(dir, id, false);
+                                        }
+                                        else{
+                                            accesarDireccion(dir, id, true);
+                                        }
                                     }
                                     else{
-                                        accesarDireccion(dir, id, true);
+                                        cout<<"Error: direccion fuera de rango"<<endl;
                                     }
                                 }
                                 else{
-                                    cout<<"Error: direccion fuera de rango"<<endl;
+                                    cout<<"Error: ese proceso no existe"<<endl;
                                 }
                             }
                             else{
-                                cout<<"Error: ese proceso no existe"<<endl;
+                                cout<<"Error: id invalido"<<endl;
                             }
                         }
                         else{
-                            cout<<"Error: id invalido"<<endl;
+                            cout<<"Error: parametros incorrectos"<<endl;
                         }
-                    }
-                    else{
-                        cout<<"Error: parametros incorrectos"<<endl;
-                    }
                     break;
                     
                     case 'L':
+                        if (lineaSeparada.size()==2) {
+                            long int id= convierteALong(lineaSeparada[1]);
+                            if (id!=-1) {
+                                if (existeProceso(id)) {
+                                    liberarProceso(id);
+                                }
+                                else{
+                                    cout<<"Error: ese proceso no existe"<<endl;
+                                }
+                            }
+                            else{
+                                cout<<"Error: invalido"<<endl;
+                            }
+                        }
+                        else{
+                            cout<<"Error: parametros incorrectos"<<endl;
+                        }
                     break;
                     
                     case 'F':
+                        if (lineaSeparada.size()==1) {
+                            
+                        }else{
+                            cout<<"Error: parametros incorrectos"<<endl;
+                        }
                     break;
                     
                     case 'E':
